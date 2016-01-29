@@ -16,13 +16,12 @@ read_domains() {
         fi
     done < "$filename"
 
-    return 1
     echo $DOMAINS
 }
 
 if [ ! -f $DOMAIN_FILE ]; then
     echo 'Specified file "'$DOMAIN_FILE'" does not exist!'
-    exit 1
+    return 1
 fi
 
 DOMAIN_NAME=$(read_domains $DOMAIN_FILE)
