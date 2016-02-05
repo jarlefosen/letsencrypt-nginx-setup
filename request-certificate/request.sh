@@ -42,7 +42,7 @@ fi
 
 DOMAIN_NAME=$(read_domains $DOMAIN_FILE)
 UPDATE_COMMAND="letsencrypt-auto certonly --webroot --renew-by-default --agree-tos --email $LE_ACCOUNT $SERVER_OPTIONS -w $WELL_KNOWN_DIR $DOMAIN_NAME"
-RELOAD_WEBSERVER='service nginx reload'
+RELOAD_WEBSERVER='nginx -s reload'
 
 $UPDATE_COMMAND
 $RELOAD_WEBSERVER

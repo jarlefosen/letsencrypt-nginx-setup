@@ -3,16 +3,16 @@
 ## Tools and stuff
 
 I use the following setup on my Ubuntu server
-- [nginx](http://nginx.org/) - Static websites and proxy redirect
+- [nginx](http://nginx.org/) - Static websites and reverse proxy
 - [letsencrypt](https://github.com/letsencrypt/letsencrypt) - Request SSL certificates
-    - Requested with --webroot command to work alongside all applications
+    - Requested with --webroot command to work alongside all running applications
 - [cron](https://help.ubuntu.com/community/CronHowto) - Auto renew certificates every month or so
 
 ### Directoy setup
 
 **letsencrypt executable**
 
-I recommend that you link the `letsencrypt-auto` executable to `/bin/letsencrypt-auto` for easy access. Or at least add it to your `$PATH`.
+I recommend that you link the `letsencrypt-auto` executable to `/bin/letsencrypt-auto` for easy access. Or add it to your `$PATH`.
 
 **SSL certificate locations**
 
@@ -24,7 +24,7 @@ Run `$ ln -s /etc/letsencrypt/live/ /opt/ssl/` to set that up.
 
 This is something letsencrypt does to verify your webserver, by putting a specific file under `http://<domain>/.well-known/acme-challence/some/path/to/file`.
 
-These files must be reachable for each domain/subdomain, and therefore I tought it would be a great solution to collect all those in one single directory, called `/opt/ssl-challenge/` and point all nginx-configs to that specific location.
+These files must be reachable for each domain/subdomain, and therefore I thought it would be a great solution to collect all those in one single directory, called `/opt/ssl-challenge/` and point all nginx-configs to that specific location.
 
 Run `$ mkdir /opt/ssl-challenge/` to fix that.
 
@@ -34,14 +34,16 @@ Run `$ mkdir /opt/ssl-challenge/` to fix that.
 
 Look inside `/nginx` to see examples of how to set up multiple domains/subdomains with a single certificate. Which also supports the acme-challenge.
 
+**Note:** Since you might have several nignx config files, I refactored some of the logic to `snippets/` inside `nginx/` for easy reuse.
+
 ## Let's do this, ok?
 
 First, you must have a list of domains that you want to support, where the first one will be used as a CN-name. It does not need to be a list of multiple domains, one is enough.
-But, I would highly recommend that you put your domain first, and then all subdomains and probably other domains as well.
+But, I would highly recommend that you put your TLD+1 domain first, and then all subdomains and probably other domains as well.
 
 **Run the script**
 
-Look inside `/request-certificate/`, modify the `domains.txt` to fit your needs, and run `$ ./request.sh domains.txt`
+Look inside `/request-certificate/`, modify the `example.com` to fit your needs, and run `$ ./request.sh example.com`
 
 That should be it. Your webservie should reload automatically from the script. Visit your site and check that the exipration of your certificate has changed. You should also be able to verify that your subdomains are inside the certificate by exploring it on your browser.
 
@@ -62,13 +64,13 @@ If not, run `$ sudo apt-get install cron`
 Run `$ crontab -e` to open crontab editor.
 Add the line below to update the 1st of every month. Just to be safe.
 ```
-0 0 1 * * bash /path/to/request.sh /path/to/domains.txt
+0 0 1 * * bash /path/to/request.sh /path/to/example.com
 ```
 
 Save and quit.
 
+_Crontab may complain if you are missing an empty newline at the end of the crontab file._
+
 Done.
 
 Srsly.
-
-_Crontab may complain if you are missing an empty newline at the end of the crontab file._
